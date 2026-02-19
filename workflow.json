@@ -1,0 +1,349 @@
+{
+  "name": "67lab Agentic Marketing Engine (Master Blueprint)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "id": "2d8f9c1e-0001-4444-8888-000000000001",
+      "name": "Schedule Research",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "2d8f9c1e-0002-4444-8888-000000000002",
+      "name": "Schedule Auto-Reply",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "sonar-pro"
+            },
+            {
+              "name": "messages",
+              "value": "={{ [{\"role\": \"user\", \"content\": \"Find daily 'Trigger Events' (AI breakthroughs, automation news, lab-tech trends).\"}] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2d8f9c1e-0003-4444-8888-000000000003",
+      "name": "Perplexity Researcher",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        250,
+        300
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_PERPLEXITY_CREDENTIAL_ID",
+          "name": "Perplexity API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.choices[0].message.content }}",
+        "options": {
+          "systemMessage": "You are the Product Logic Agent. Map every news item to a 67lab.ai value proposition (e.g., Autonomous Agents, MCP, or Rapid Prototyping)."
+        }
+      },
+      "id": "2d8f9c1e-0004-4444-8888-000000000004",
+      "name": "Product Mapping Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are Agent A (Creator). Draft 4 platform-specific posts (X, LinkedIn, Reddit, FB) based on the mapped news."
+        }
+      },
+      "id": "2d8f9c1e-0005-4444-8888-000000000005",
+      "name": "Agent A Creator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        750,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are Agent B (Editor). Check the drafts against general knowledge/Perplexity for factual accuracy. If wrong, correct it. If right, output 'PASS'."
+        }
+      },
+      "id": "2d8f9c1e-0006-4444-8888-000000000006",
+      "name": "Agent B Editor",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "You are Agent C (Brand Critic). Ensure no 'AI-sounding' jargon (e.g., 'ever-evolving landscape'). Rewrite if necessary."
+        }
+      },
+      "id": "2d8f9c1e-0007-4444-8888-000000000007",
+      "name": "Agent C Critic",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        1250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Generate a high-fidelity 'Cyberpunk Laboratory' image for this post: {{ $json.output }}",
+        "options": {}
+      },
+      "id": "2d8f9c1e-0008-4444-8888-000000000008",
+      "name": "Exposure Multiplier Flux",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Check mentions",
+        "options": {
+          "systemMessage": "You are the Auto-Reply Agent. Poll mentions. Classify intent: [Question, Praise, Criticism, Spam]."
+        }
+      },
+      "id": "2d8f9c1e-0009-4444-8888-000000000009",
+      "name": "Auto-Reply Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        250,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.output }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "Question"
+            },
+            {
+              "value2": "Praise"
+            },
+            {
+              "value2": "Criticism"
+            }
+          ]
+        }
+      },
+      "id": "2d8f9c1e-0010-4444-8888-000000000010",
+      "name": "Intent Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        500,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Draft a helpful response using 67lab.ai knowledge base.",
+        "options": {}
+      },
+      "id": "2d8f9c1e-0011-4444-8888-000000000011",
+      "name": "Draft Response",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [
+        750,
+        700
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2d8f9c1e-0012-4444-8888-000000000012",
+      "name": "Escalate via Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        750,
+        900
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Research": {
+      "main": [
+        [
+          {
+            "node": "Perplexity Researcher",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Researcher": {
+      "main": [
+        [
+          {
+            "node": "Product Mapping Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product Mapping Agent": {
+      "main": [
+        [
+          {
+            "node": "Agent A Creator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent A Creator": {
+      "main": [
+        [
+          {
+            "node": "Agent B Editor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent B Editor": {
+      "main": [
+        [
+          {
+            "node": "Agent C Critic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent C Critic": {
+      "main": [
+        [
+          {
+            "node": "Exposure Multiplier Flux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Auto-Reply": {
+      "main": [
+        [
+          {
+            "node": "Auto-Reply Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Reply Agent": {
+      "main": [
+        [
+          {
+            "node": "Intent Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Switch": {
+      "main": [
+        [
+          {
+            "node": "Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalate via Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
