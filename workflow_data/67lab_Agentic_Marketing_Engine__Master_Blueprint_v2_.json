@@ -1,5 +1,6 @@
 {
   "name": "67lab Agentic Marketing Engine (Master Blueprint v2)",
+  "id": "RpIfQVEBLFneDXlt",
   "nodes": [
     {
       "parameters": {
@@ -521,5 +522,15 @@
         ]
       ]
     }
-  }
+  },
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9a47db14-80d2-4ad9-a9ff-771ce2104db3",
+  "meta": {
+    "instanceId": "b65ef13e38b6e5c3e50996dc600128118a7c3bc750bc0e12c81bc5855e63bea2"
+  },
+  "tags": []
 }
